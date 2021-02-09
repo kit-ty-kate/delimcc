@@ -50,7 +50,7 @@ OCAMLINCLUDES=
 # Directory of your OCAML executables...
 #OCAMLBIN=../../bin
 OCAMLBIN := $(shell dirname `which ocaml`)
-OCAMLC=$(OCAMLBIN)/ocamlc
+OCAMLC=$(OCAMLBIN)/ocamlc -g
 LIBDIR := $(shell ocamlc -where)
 
 # The following Makefile.config will set ARCH, MODEL, SYSTEM
@@ -59,7 +59,7 @@ include $(LIBDIR)/Makefile.config
 # CFLAGS=$(FLAGS) -O $(NATIVECCCOMPOPTS)
 # DFLAGS=$(FLAGS) -g -DDEBUG $(NATIVECCCOMPOPTS)
 
-OCAMLOPT=$(OCAMLBIN)/ocamlopt -verbose
+OCAMLOPT=$(OCAMLBIN)/ocamlopt -verbose -g
 OCAMLTOP=$(OCAMLBIN)/ocaml
 OCAMLMKLIB=$(OCAMLBIN)/ocamlmklib -v
 OCAMLMKTOP=$(OCAMLBIN)/ocamlmktop
@@ -74,7 +74,7 @@ STUBLIBDIR=$(LIBDIR)/stublibs
 # the dangerous optimizations. So, no special flags are needed.
 #CC=gcc -fno-ipa-sra
 CC=gcc
-CFLAGS=-fPIC -Wall $(OCAMLINCLUDES) -I$(STDINCLUDES) -O2
+CFLAGS=-fPIC -Wall $(OCAMLINCLUDES) -I$(STDINCLUDES) -g
 NATIVEFLAGS=-DCAML_NAME_SPACE -DNATIVE_CODE \
        -DTARGET_$(ARCH) -DSYS_$(SYSTEM)
 RANLIB=ranlib
