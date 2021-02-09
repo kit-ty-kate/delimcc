@@ -45,6 +45,9 @@
 #endif
 
 #if defined(Classify_addr)
+#if !defined(In_code_area)
+#define In_code_area 8
+#endif
 #define Is_code_ptr(a) (Classify_addr(a) & In_code_area)
 #else
 #define Is_code_ptr(a) ((char *) v >= caml_code_area_start && \

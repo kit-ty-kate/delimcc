@@ -109,7 +109,7 @@ static void print_exc_trace(char * title)
   value * p;
   fprintf(stderr, "\nexc_trace: %s\n",title);
   fprintf(stderr, "caml_trapsp          %p\n", caml_trapsp);
-  for(p = caml_trapsp; p < caml_stack_high; p = Trap_link(p))
+  for(p = caml_trapsp; p < caml_stack_high; p = p + Long_val(Trap_link_offset(p)))
     fprintf(stderr, "  %p\n",p);
 }
 
@@ -228,14 +228,14 @@ value copy_stack_fragment(const value vek1)
         print_exc_trace("ERROR: tp1 is not found...");
         myassert(0);
       }
-    value *q = Trap_link(p);
+    value *q = p + Long_val(Trap_link_offset(p));
     if (q == tp1)
     {
       /* end of the chain */
-      Field(block, (value*)(&(Trap_link(p))) - tp2) = Val_long(0);
+      Field(block, (value*)((p + Trap_link_offset(p))) - tp2) = Val_long(0);
       break;
     }
-    Field(block, (value*)(&(Trap_link(p))) - tp2) = Val_long(q - tp2);
+    Field(block, (value*)((p + Trap_link_offset(p))) - tp2) = Val_long(q - tp2);
     p = q;
   }
   return block;
@@ -275,7 +275,7 @@ value reset_trapsp(const value val_ek, const value delimcc_exc)
      chain
   */
   value *p;
-  for(p=caml_trapsp; p == tp; p = Trap_link(p))
+  for(p=caml_trapsp; p == tp; p = p + Long_val(Trap_link_offset(p)))
     if( !(p < caml_stack_high) )
     { print_gl_stack("ERROR: tp is not found in the Trap_link chain!!!");
       print_exc_trace("ERROR: tp is not found...");
@@ -338,11 +338,11 @@ value push_stack_fragment(const value ekfragment, const value delimcc_exc)
      and connect the copied frames to the existing frames
   */
   value *p;
-  for (p = new_trapsp; (value)Trap_link(p) != Val_long(0); p = Trap_link(p)) {
+  for (p = new_trapsp; (value)(p + Long_val(Trap_link_offset(p))) != Val_long(0); p = p + Long_val(Trap_link_offset(p))) {
     myassert( p < caml_stack_high );
-    Trap_link(p) = new_trapsp + Long_val((value) Trap_link(p));
+    Trap_link_offset(p) = Val_long(new_trapsp - (p + Long_val(Trap_link_offset(p))));
   }
-  Trap_link(p) = caml_trapsp;
+  Trap_link_offset(p) = Val_long(caml_trapsp - p);
   caml_extern_sp = new_sp;
   caml_trapsp    = new_trapsp;
 
